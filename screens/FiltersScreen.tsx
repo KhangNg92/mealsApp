@@ -1,8 +1,8 @@
-import React, {useState, FC, useEffect, useCallback} from 'react';
-import {View, Text, StyleSheet, Switch, Platform} from 'react-native';
-import {colors} from '../utils/colors';
-import {FiltersScreenProps} from '../navigation/MealsNavigator';
-import {useNavigation, useRoute} from '@react-navigation/native';
+import React, { useState, FC, useEffect, useCallback } from 'react';
+import { View, Text, StyleSheet, Switch, Platform } from 'react-native';
+import { colors } from '../utils/colors';
+import { FiltersScreenProps } from '../navigation/MealsNavigator';
+import { useNavigation, useRoute } from '@react-navigation/native';
 
 type FilterSwitchProps = {
   label: string;
@@ -10,7 +10,7 @@ type FilterSwitchProps = {
   onChange: Function;
 };
 
-const FilterSwitch: FC<FilterSwitchProps> = ({label, state, onChange}) => (
+const FilterSwitch: FC<FilterSwitchProps> = ({ label, state, onChange }) => (
   <View style={styles.filterContainer}>
     <Text>{label}</Text>
     <Switch
@@ -26,7 +26,7 @@ const FilterSwitch: FC<FilterSwitchProps> = ({label, state, onChange}) => (
 );
 
 const FiltersScreen = () => {
-  const {screen, title, filterContainer} = styles;
+  const { screen, title, filterContainer } = styles;
   const [isGluttenFree, setIsGluttenFree] = useState(false);
   const [isLactoseFree, setIsLactoseFree] = useState(false);
   const [isVegan, setIsVegan] = useState(false);

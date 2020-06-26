@@ -1,8 +1,10 @@
-import {createStackNavigator, StackScreenProps} from '@react-navigation/stack';
-import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
-import {createDrawerNavigator} from '@react-navigation/drawer';
-
+import { createStackNavigator, StackScreenProps } from '@react-navigation/stack';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { createDrawerNavigator } from '@react-navigation/drawer';
+import { useDispatch } from 'react-redux';
 import Ionicons from 'react-native-vector-icons/Ionicons';
+
+
 import CategoriesScreen from '../screens/CategoriesScreen';
 import CategoryMealsScreen from '../screens/CategoryMealsScreen';
 import MealDetailScreen from '../screens/MealDetailScreen';
@@ -10,20 +12,22 @@ import FavoriteScreen from '../screens/FavoriteScreen';
 import FiltersScreen from '../screens/FiltersScreen';
 import DrawerComponent from '../components/Drawer';
 
-import React from 'react';
-import {colors} from '../utils/colors';
-import {Platform} from 'react-native';
-import {MEALS} from '../utils/fakeData';
+import React, { useEffect } from 'react';
+import { colors } from '../utils/colors';
+import { Platform } from 'react-native';
 
-import {HeaderButtons, Item} from 'react-navigation-header-buttons';
+
+import { HeaderButtons, Item } from 'react-navigation-header-buttons';
 import CustomHeaderButton from '../components/HeaderButton';
+import { toggleFavorite, setFilters, FilterState } from '../redux/slices/mealsSlice';
+
 
 type NavigatorParamList = {
   Categories: undefined;
-  CategoryMeals: {id: string; color: string; title: string};
-  MealDetail: {id: string};
+  CategoryMeals: { id: string; color: string; title: string };
+  MealDetail: { id: string, title: string, isFav: boolean };
   Favorites: undefined;
-  Filters: {save: Object};
+  Filters: { save: FilterState };
   Drawer: undefined;
   BottomTab: undefined;
 };
@@ -37,6 +41,13 @@ const FilterStack = createStackNavigator<NavigatorParamList>();
 const Tab = createBottomTabNavigator<NavigatorParamList>();
 const Drawer = createDrawerNavigator<NavigatorParamList>();
 
+// Redux
+
+
+// useEffect(() => {
+
+// })
+
 const defaultScreenOptions = {
   headerStyle: {
     backgroundColor: Platform.OS === 'ios' ? 'white' : colors.primaryColor,
@@ -47,13 +58,14 @@ const defaultScreenOptions = {
   },
 };
 
-const MealsNavigatorStack = ({navigation}: any) => {
+const MealsNavigatorStack = ({ navigation }: any) => {
+  const dispatch = useDispatch()
   return (
     <MealStack.Navigator screenOptions={defaultScreenOptions}>
       <MealStack.Screen
         options={{
           headerTitle: 'Meal Categories',
-          headerLeft: ({tintColor}) => (
+          headerLeft: ({ tintColor }) => (
             <DrawerComponent
               tintColor={tintColor}
               navigation={() => navigation.openDrawer()}
@@ -67,7 +79,7 @@ const MealsNavigatorStack = ({navigation}: any) => {
         name="CategoryMeals"
         options={({
           route: {
-            params: {title},
+            params: { title },
           },
         }) => ({
           title,
@@ -79,26 +91,24 @@ const MealsNavigatorStack = ({navigation}: any) => {
         component={MealDetailScreen}
         options={({
           route: {
-            params: {id},
+            params: { id, title, isFav },
           },
-        }) => {
-          const foundMeal = MEALS.find((meal) => meal.id === id);
-          return {
-            headerTitle: foundMeal?.title,
-            headerRight: () => (
-              <HeaderButtons HeaderButtonComponent={CustomHeaderButton}>
-                <Item
-                  title="Favorite"
-                  iconName="ios-star"
-                  onPress={() => console.log('Mark as Fav')}
-                />
-              </HeaderButtons>
-            ),
-            headerBackTitleStyle: {
-              fontFamily: 'OpenSans-Bold',
-            },
-          };
-        }}
+        }) => ({
+          headerTitle: title,
+          headerRight: () => (
+            <HeaderButtons HeaderButtonComponent={CustomHeaderButton}>
+              <Item
+                title="Favorite"
+                iconName={isFav ? 'ios-star' : 'ios-star-outline'}
+                onPress={() => dispatch(toggleFavorite(id))}
+              />
+            </HeaderButtons>
+          ),
+          headerBackTitleStyle: {
+            fontFamily: 'OpenSans-Bold',
+          },
+        })
+        }
       />
 
       <MealStack.Screen
@@ -106,7 +116,7 @@ const MealsNavigatorStack = ({navigation}: any) => {
         component={FiltersScreen}
         options={{
           title: 'Filters',
-          headerLeft: ({tintColor}) => (
+          headerLeft: ({ tintColor }) => (
             <DrawerComponent
               tintColor={tintColor}
               navigation={() => navigation.openDrawer()}
@@ -118,14 +128,14 @@ const MealsNavigatorStack = ({navigation}: any) => {
   );
 };
 
-const FavoriteNavigatorStack = ({navigation}: any) => (
+const FavoriteNavigatorStack = ({ navigation }: any) => (
   <FavoriteStack.Navigator screenOptions={defaultScreenOptions}>
     <FavoriteStack.Screen
       name="Favorites"
       component={FavoriteScreen}
       options={{
         title: 'Your Favorites',
-        headerLeft: ({tintColor}) => (
+        headerLeft: ({ tintColor }) => (
           <DrawerComponent
             tintColor={tintColor}
             navigation={() => navigation.openDrawer()}
@@ -136,20 +146,23 @@ const FavoriteNavigatorStack = ({navigation}: any) => (
   </FavoriteStack.Navigator>
 );
 
-const FiltersNavigatorStack = ({navigation}: any) => {
+const FiltersNavigatorStack = ({ navigation }: any) => {
+  const dispatch = useDispatch();
+
   return (
     <FilterStack.Navigator screenOptions={defaultScreenOptions}>
       <FilterStack.Screen
         name="Filters"
         component={FiltersScreen}
         options={({
-          route: {
-            params: {save},
-          },
+
+          route: { params }
         }) => {
+
           return {
+
             title: 'Your Favorites',
-            headerLeft: ({tintColor}) => (
+            headerLeft: ({ tintColor }) => (
               <DrawerComponent
                 tintColor={tintColor}
                 navigation={() => navigation.openDrawer()}
@@ -160,7 +173,7 @@ const FiltersNavigatorStack = ({navigation}: any) => {
                 <Item
                   title="Favorite"
                   iconName="ios-save"
-                  onPress={() => console.log(save)}
+                  onPress={() => dispatch(setFilters(params.save))}
                 />
               </HeaderButtons>
             ),
@@ -183,7 +196,7 @@ const TabNavigator = () => (
       name="Categories"
       component={MealsNavigatorStack}
       options={{
-        tabBarIcon: ({color}) => (
+        tabBarIcon: ({ color }) => (
           <Ionicons name="ios-restaurant" size={25} color={color} />
         ),
         tabBarLabel: 'Meals!',
@@ -193,7 +206,7 @@ const TabNavigator = () => (
       name="Favorites"
       component={FavoriteNavigatorStack}
       options={{
-        tabBarIcon: ({color}) => (
+        tabBarIcon: ({ color }) => (
           <Ionicons name="ios-star" size={25} color={color} />
         ),
       }}
@@ -211,7 +224,7 @@ const DrawerNavigator = () => (
       },
     }}
     screenOptions={{
-      drawerIcon: ({color}) => (
+      drawerIcon: ({ color }) => (
         <Ionicons name="ios-menu" size={25} color={color} />
       ),
     }}>
@@ -219,7 +232,7 @@ const DrawerNavigator = () => (
       name="Categories"
       component={TabNavigator}
       options={{
-        drawerIcon: ({color}) => (
+        drawerIcon: ({ color }) => (
           <Ionicons name="ios-restaurant" size={25} color={color} />
         ),
       }}
@@ -228,7 +241,7 @@ const DrawerNavigator = () => (
       name="Filters"
       component={FiltersNavigatorStack}
       options={{
-        drawerIcon: ({color}) => (
+        drawerIcon: ({ color }) => (
           <Ionicons name="ios-search" size={25} color={color} />
         ),
       }}

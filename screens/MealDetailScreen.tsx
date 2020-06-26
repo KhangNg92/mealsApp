@@ -1,14 +1,15 @@
-import React, {FC, ReactNode} from 'react';
-import {View, Text, StyleSheet, ScrollView, Image} from 'react-native';
-import {MealDetailScreenProps} from 'navigation/MealsNavigator';
+import React, { FC, ReactNode, useEffect } from 'react';
+import { View, Text, StyleSheet, ScrollView, Image } from 'react-native';
+import { MealDetailScreenProps } from 'navigation/MealsNavigator';
 import DefaultText from '../components/DefaultText';
-import {useSelector} from 'react-redux';
-import {RootState} from 'redux/store';
+import { useSelector } from 'react-redux';
+import { RootState } from 'redux/store';
+import { useNavigation } from '@react-navigation/native';
 
 type ListItemProps = {
   children: ReactNode;
 };
-const ListItem: FC<ListItemProps> = ({children}) => (
+const ListItem: FC<ListItemProps> = ({ children }) => (
   <View style={styles.listItem}>
     <DefaultText>{children}</DefaultText>
   </View>
@@ -16,19 +17,28 @@ const ListItem: FC<ListItemProps> = ({children}) => (
 
 const MealDetailScreen: FC<MealDetailScreenProps> = ({
   route: {
-    params: {id},
+    params: { id },
   },
 }) => {
   const meals = useSelector((state: RootState) => state.meals.meals);
+  const CurrentFavMeals = useSelector((state: RootState) => {
+    return state.meals.favoriteMeals.some(meal => meal.id === id);
+  });
+  const { setParams } = useNavigation()
+  useEffect(() => {
+    setParams({
+      isFav: CurrentFavMeals
+    })
+  }, [CurrentFavMeals])
 
   const selectedMeal = meals.find((meal) => {
     return meal.id === id;
   });
 
-  const {image, detail, title} = styles;
+  const { image, detail, title } = styles;
   return (
     <ScrollView>
-      <Image source={{uri: selectedMeal?.imageUrl}} style={image} />
+      <Image source={{ uri: selectedMeal?.imageUrl }} style={image} />
       <View style={detail}>
         <DefaultText>{selectedMeal?.duration}m</DefaultText>
         <DefaultText>{selectedMeal?.complexity.toUpperCase()}</DefaultText>

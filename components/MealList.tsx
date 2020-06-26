@@ -1,6 +1,6 @@
-import React, {FC} from 'react';
-import {StyleSheet, View, ListRenderItem} from 'react-native';
-import {FlatList} from 'react-native-gesture-handler';
+import React, { FC } from 'react';
+import { StyleSheet, View, ListRenderItem } from 'react-native';
+import { FlatList } from 'react-native-gesture-handler';
 import Meal from '../models/meal';
 import MealItem from './MealItem';
 
@@ -9,9 +9,9 @@ type MealListProps = {
   navigate: Function;
 };
 
-const MealList: FC<MealListProps> = ({data, navigate}) => {
+const MealList: FC<MealListProps> = ({ data, navigate }) => {
   const renderMealItem: ListRenderItem<Meal> = ({
-    item: {title, duration, complexity, affordability, imageUrl, id},
+    item: { title, duration, complexity, affordability, imageUrl, id },
   }) => {
     return (
       <MealItem
@@ -20,6 +20,7 @@ const MealList: FC<MealListProps> = ({data, navigate}) => {
         onSelectMeal={() =>
           navigate('MealDetail', {
             id,
+            title
           })
         }
         complexity={complexity}
@@ -33,9 +34,9 @@ const MealList: FC<MealListProps> = ({data, navigate}) => {
     <View style={styles.screen}>
       <FlatList
         data={data}
-        keyExtractor={({id}) => id}
+        keyExtractor={({ id }) => id}
         renderItem={renderMealItem}
-        style={{width: '100%'}}
+        style={{ width: '100%' }}
       />
     </View>
   );
