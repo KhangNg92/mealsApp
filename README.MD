@@ -5,18 +5,17 @@
 ### Clone the repo
 
 ```
-git clone
+git clone https://github.com/KhangNg92/mealsApp.git
 ```
-
-### Get server and client running
-
-#### Install Packages
+### Install Packages
 
 ```
 npm i
 ```
 
-#### Get Backend running
+### Get server and client running
+
+#### Get Node And MongoDB running
 
 - Attach your MongoDB Url into `server/config/dev.ts`
 
